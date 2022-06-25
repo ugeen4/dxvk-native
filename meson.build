@@ -52,7 +52,7 @@ endif
 
 dxvk_include_path = include_directories('./include')
 
-if (cpu_family == 'x86_64' or cpu_family == 'aarch64')
+if (cpu_family == 'x86_64' or cpu_family == 'aarch64' or cpu_family == 'e2k')
   dxvk_library_path = meson.source_root() + '/lib'
 else
   dxvk_library_path = meson.source_root() + '/lib32'
@@ -63,6 +63,8 @@ if (cpu_family == 'x86' or cpu_family == 'x86_64')
   add_project_arguments('-DCPU_ARCH_X86', language : ['c', 'cpp'])
 elif (cpu_family == 'arm' or cpu_family == 'aarch64')
   add_project_arguments('-DCPU_ARCH_ARM', language : ['c', 'cpp'])
+elif (cpu_family == 'e2k')
+  add_project_arguments('-DCPU_ARCH_E2K', language : ['c', 'cpp'])  
 endif
 
 dxvk_extradep = [ ]
@@ -130,7 +132,7 @@ else
   dxvk_wsi      = get_option('dxvk_native_wsi')
   dxvk_platform = target_machine.system()
 
-  if cpu_family == 'x86'
+  if( cpu_family == 'x86' or cpu_family == 'e2k')
     if dxvk_compiler.has_argument('-msse') and dxvk_compiler.has_argument('-msse2')
       add_project_arguments('-msse', '-msse2', language: 'c')
       add_project_arguments('-msse', '-msse2', language: 'cpp')
@@ -139,6 +141,11 @@ else
       add_project_arguments('-mfpmath=sse', language: ['c', 'cpp'])
     endif
   endif
+  
+  if cpu_family == 'e2k'
+      add_project_arguments('-ffast', '-ffast-math', '-funroll-loops', language: ['c', 'cpp'])  
+  endif
+  
 
   if dxvk_platform == 'windows'
     dxvk_include_path = include_directories('./include', './include/native/')
